@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resonance Chronicles — 300-Frame Cinematic Scroll Odyssey</title>
+  <meta name="description" content="A 300-frame interactive cinematic scroll experience with smooth canvas scrubbing, narrative beats, and reactive ambient audio.">
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css?v=fresh2">
+  <style>
+    /* Complete OS Mouse Cursor Removal — Only Heart Cursor Visible */
+    html, body, *, *::before, *::after,
+    button, a, input, select, textarea, canvas, svg, div, span, p, h1, h2, h3, h4, h5, h6, img, video,
+    .luxury-btn, .timeline-track, .timeline-thumb, .marker, .character-tab, .filter-select, .toggle-switch, .dock-mini-btn {
+      cursor: none !important;
+    }
+  </style>
+</head>
+<body class="theme-dark">
+
+  <!-- Preloader Screen (300 Frames) -->
+  <div id="preloader" class="preloader">
+    <div class="preloader-backdrop"></div>
+    <div class="preloader-content">
+      <div class="preloader-badge">WUTHERING ODYSSEY &bull; EXTENDED CHRONICLES</div>
+      <h1 class="preloader-title">LOADING CINEMATIC SAGA</h1>
+      <p class="preloader-subtitle">Buffering 503 Ultra-HD frames (Resonance &amp; Celestial Epilogue)...</p>
+      
+      <div class="loader-visual">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring outer"></div>
+        <div class="loader-percentage" id="loaderPercentage">0%</div>
+      </div>
+
+      <div class="loader-bar-wrap">
+        <div class="loader-bar" id="loaderBar"></div>
+      </div>
+      <div class="loader-counter" id="loaderCounter">Initializing buffer 0 / 503</div>
+    </div>
+  </div>
+
+  <!-- Audio Context Activator Banner -->
+  <div id="audioHint" class="audio-hint hidden">
+    <span>Click anywhere or press <strong>[M]</strong> to play <strong>RADWIMPS — Suzume (Theme Song)</strong></span>
+  </div>
+
+  <!-- Audio Element: Official Suzume Theme Song by RADWIMPS feat. Toaka -->
+  <audio id="suzumeAudio" src="suzume.mp3" preload="auto" loop></audio>
+
+  <!-- Main Animation Canvas (Sticky Background Viewport) -->
+  <div class="canvas-viewport" id="canvasViewport">
+    <canvas id="animCanvas"></canvas>
+    
+    <!-- Central Dynamic Resonator Background Video & Energy Canvas -->
+    <div class="resonator-bg-container" id="resonatorBgContainer">
+      <video id="resonatorBgVideo" class="resonator-bg-video" loop muted playsinline></video>
+      <canvas id="resonatorEnergyCanvas" class="resonator-energy-canvas"></canvas>
+      <div class="resonator-elemental-aurora" id="elementalAurora"></div>
+    </div>
+    
+    <!-- Cinematic Lighting & Atmosphere Suite -->
+    <!-- 1. Volumetric Celestial God Rays (Light Shafts) -->
+    <div class="cinematic-god-rays" id="godRays" aria-hidden="true">
+      <div class="god-ray ray-1"></div>
+      <div class="god-ray ray-2"></div>
+      <div class="god-ray ray-3"></div>
+    </div>
+
+    <!-- 2. Anamorphic Horizontal Lens Flare Streak -->
+    <div class="cinematic-anamorphic-flare" id="anamorphicFlare" aria-hidden="true">
+      <div class="flare-streak"></div>
+      <div class="flare-core-bloom"></div>
+      <div class="flare-halo ring-1"></div>
+      <div class="flare-halo ring-2"></div>
+    </div>
+
+    <!-- 3. Ambient Celestial Stardust & Bokeh Motes Canvas -->
+    <canvas id="cinemaParticlesCanvas" class="cinema-particles-canvas" aria-hidden="true"></canvas>
+
+    <!-- 4. Interactive Specular Cursor Spotlight -->
+    <div class="cinema-cursor-spotlight" id="cursorSpotlight" aria-hidden="true"></div>
+
+    <!-- 5. Optical Master Vignette & Chromatic Dispersion -->
+    <div class="cinematic-vignette" id="vignette"></div>
+    <div class="cinematic-chromatic-dispersion" id="chromaFx"></div>
+    <div class="cinematic-grain" id="filmGrain"></div>
+    <div class="cinematic-bloom" id="bloomFx"></div>
+
+    <!-- 6. Widescreen Anamorphic Theatrical Scope Bars (Top & Bottom) -->
+    <div class="cinema-scope-bar top-bar">
+      <div class="scope-stamp left">RESONANCE CHRONICLES • 2.39:1 THEATRICAL MASTER</div>
+      <div class="scope-stamp right">DCI 4K • 503-FRAME SAGA</div>
+    </div>
+    <div class="cinema-scope-bar bottom-bar"></div>
+  </div>
+
+  <!-- Wuthering Waves Terminal HUD Screen Overlay (Scanlines, Vignette & HUD Corner Brackets) -->
+  <div class="ww-terminal-overlay" id="wwTerminalOverlay" aria-hidden="true">
+    <div class="ww-terminal-scanlines"></div>
+    <div class="ww-terminal-vignette"></div>
+    <div class="ww-terminal-screen-corners">
+      <div class="ww-screen-corner top-left">
+        <span class="corner-bracket">┌</span>
+        <span class="corner-cross">+</span>
+        <span class="corner-label">SYS.HUD // 01</span>
+      </div>
+      <div class="ww-screen-corner top-right">
+        <span class="corner-label">FREQ // 44.1k</span>
+        <span class="corner-cross">+</span>
+        <span class="corner-bracket">┐</span>
+      </div>
+      <div class="ww-screen-corner bottom-left">
+        <span class="corner-bracket">└</span>
+        <span class="corner-cross">+</span>
+        <span class="corner-label">PANGU // TERM</span>
+      </div>
+      <div class="ww-screen-corner bottom-right">
+        <span class="corner-label">SOLARIS-3</span>
+        <span class="corner-cross">+</span>
+        <span class="corner-bracket">┘</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Heart Shape Cursor Follower & Movement Sparkles -->
+  <div class="cursor-heart-follower" id="cursorHeartFollower" aria-hidden="true">
+    <div class="cursor-heart-scaler">
+      <div class="heart-ambient-glow"></div>
+      <div class="heart-pulse-halo"></div>
+      <div class="heart-svg-wrap">
+        <svg class="heart-cursor-svg" viewBox="0 0 32 32" width="32" height="32" fill="none">
+          <defs>
+            <linearGradient id="cursorHeartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#fda4af" />
+              <stop offset="35%" stop-color="#f43f5e" />
+              <stop offset="70%" stop-color="#e11d48" />
+              <stop offset="100%" stop-color="#38bdf8" />
+            </linearGradient>
+            <filter id="cursorHeartGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <!-- Outer Glowing Silhouette Heart -->
+          <path class="cursor-heart-base" d="M16 28.5 C16 28.5 3 20.5 3 11.5 C3 6.5 7 2.5 12 2.5 C14.5 2.5 15.5 3.8 16 4.8 C16.5 3.8 17.5 2.5 20 2.5 C25 2.5 29 6.5 29 11.5 C29 20.5 16 28.5 16 28.5 Z" fill="url(#cursorHeartGrad)" filter="url(#cursorHeartGlow)" stroke="#ffffff" stroke-width="1.2" />
+          <!-- Inner Specular Luster -->
+          <path class="cursor-heart-inner" d="M16 24.5 C16 24.5 6 18 6 11.5 C6 7.8 9 5 12 5 C14 5 15.2 6.2 16 7 C16.8 6.2 18 5 20 5 C23 5 26 7.8 26 11.5 C26 18 16 24.5 16 24.5 Z" fill="rgba(255, 255, 255, 0.5)" />
+          <!-- Anime Starlight Sparkle Glint -->
+          <circle cx="11.5" cy="8.5" r="1.8" fill="#ffffff" />
+          <circle cx="14" cy="12" r="0.9" fill="#ffffff" />
+        </svg>
+      </div>
+      <div class="heart-center-sparkle"></div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Heart Sparkles Particle Canvas -->
+  <canvas class="heart-sparkles-canvas" id="heartSparklesCanvas" aria-hidden="true"></canvas>
+
+  <!-- Dynamic Glassmorphic Navigation Header -->
+  <header class="luxury-nav" id="mainNav">
+    <div class="nav-left">
+      <div class="brand-crest">
+        <div class="crest-dot"></div>
+        <span class="brand-title">RESONANCE</span>
+        <span class="brand-sub">SAGA</span>
+      </div>
+      
+      <!-- Part Indicator Badge -->
+      <span class="part-badge" id="partBadge">PART 1: RESONANCE (300F)</span>
+
+      <!-- Act Indicator -->
+      <div class="act-indicator" id="currentActPill">
+        <span class="pill-dot"></span>
+        <span class="pill-text" id="actPillText">OVERVIEW</span>
+      </div>
+    </div>
+
+    <!-- Chapter Selector Links -->
+    <div class="nav-center">
+      <div class="nav-chapter-links" id="chapterLinksWrap">
+        <button class="chap-btn active" data-frame="0">Overview</button>
+        <button class="chap-btn" data-frame="45">II. Encounter</button>
+        <button class="chap-btn" data-frame="150">III. Serenade</button>
+        <button class="chap-btn" data-frame="225">IV. Male Rover</button>
+        <button class="chap-btn" data-frame="285">Finale</button>
+        <button class="chap-btn" data-frame="300">Epilogue</button>
+        <button class="chap-btn" data-frame="502" id="navPlayAnywhereBtn" title="Jump to Final Play Anywhere Climax">Play Anywhere</button>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <!-- Suzume Theme OST Indicator Pill -->
+      <div class="suzume-ost-badge" id="suzumeBadge" title="Click to Play / Pause RADWIMPS feat. Toaka — Suzume (M)">
+        <div class="badge-border-beam"></div>
+        <div class="badge-scanline"></div>
+        <div class="badge-eq-wrap">
+          <div class="eq-bars-4">
+            <span class="eq-bar bar-1"></span>
+            <span class="eq-bar bar-2"></span>
+            <span class="eq-bar bar-3"></span>
+            <span class="eq-bar bar-4"></span>
+          </div>
+        </div>
+        <div class="suzume-meta">
+          <div class="badge-title-row">
+            <span class="badge-tag">OST</span>
+            <span class="suzume-title">Suzume</span>
+          </div>
+          <span class="suzume-artist" id="suzumeStatusText">RADWIMPS feat. Toaka</span>
+        </div>
+        <div class="badge-duration-box nav-duration-box">
+          <div class="badge-time-display">
+            <span class="current-time" id="navAudioCurrentTime">0:00</span>
+            <span class="time-sep">/</span>
+            <span class="total-duration" id="navAudioTotalTime">3:58</span>
+          </div>
+          <div class="badge-progress-track">
+            <div class="badge-progress-fill" id="navAudioProgressFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ambient Sound Button -->
+      <button class="icon-action-btn" id="audioToggleBtn" title="Toggle Suzume Song & Ambient Audio (M)">
+        <svg class="icon-speaker-on" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+        <svg class="icon-speaker-off hidden" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+        <span class="btn-tooltip">Sound</span>
+      </button>
+
+      <!-- Autoplay Button -->
+      <button class="icon-action-btn primary" id="autoPlayBtn" title="Autoplay / Pause (Space)">
+        <svg class="icon-play" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        <svg class="icon-pause hidden" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <rect x="6" y="4" width="4" height="16"></rect>
+          <rect x="14" y="4" width="4" height="16"></rect>
+        </svg>
+        <span class="action-label" id="playBtnText">Autoplay</span>
+      </button>
+
+      <!-- Telemetry Toggle -->
+      <button class="icon-action-btn" id="hudToggleBtn" title="Toggle HUD / Stats (H)">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </button>
+
+      <!-- Fullscreen Button -->
+      <button class="icon-action-btn" id="fsToggleBtn" title="Fullscreen (F)">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Top Floating Tactical Mission Header (Wuthering Waves Lore Streamer) -->
+  <div class="tactical-hud-banner" id="tacticalBanner">
+    <div class="tactical-banner-inner">
+      <div class="tac-block">
+        <span class="tac-beacon"></span>
+        <span class="tac-title">TACTICAL WAVE METRICS</span>
+      </div>
+      <div class="tac-block">
+        <span class="tac-label">SYS.RESONANCE:</span>
+        <span class="tac-val tac-glow-cyan">FREQUENCY SYNCHRONIZED [44.1 kHz]</span>
+      </div>
+      <div class="tac-block">
+        <span class="tac-label">TACTICAL SECTOR:</span>
+        <span class="tac-val">HUANGLONG // JINGZHOU CITADEL</span>
+      </div>
+      <div class="tac-block">
+        <span class="tac-label">TACET DISCORD DENSITY:</span>
+        <span class="tac-val tac-glow-red">LEVEL 4 HAZARD [0.084 MHz]</span>
+      </div>
+      <div class="tac-block">
+        <span class="tac-label">DATA BANK:</span>
+        <span class="tac-val tac-glow-amber">LV. 21 [100% 5★ GOLD]</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Left Side Floating Cyber Telemetry & Resonator Roster Selector -->
+  <aside class="left-cyber-telemetry" id="leftCyberTelemetry">
+    <div class="cyber-telemetry-header">
+      <span class="cyber-pulse"></span>
+      <span class="cyber-title">TACET HARMONIZER</span>
+    </div>
+
+    <!-- Resonator Roster Slot Buttons -->
+    <div class="roster-section-label">RESONATOR SLOTS</div>
+    <div class="roster-slots-list" id="rosterSlotsList">
+      <button class="roster-slot-btn active" data-resonator="rover" title="Select Rover (Havoc / Spectro Arbiter)">
+        <span class="slot-attr-badge havoc">HV</span>
+        <div class="slot-info">
+          <span class="slot-name">Rover</span>
+          <span class="slot-sub">Arbiter</span>
+        </div>
+        <span class="slot-indicator"></span>
+      </button>
+
+      <button class="roster-slot-btn" data-resonator="jiyan" title="Select Jiyan (Aero General)">
+        <span class="slot-attr-badge aero">AER</span>
+        <div class="slot-info">
+          <span class="slot-name">Jiyan</span>
+          <span class="slot-sub">General</span>
+        </div>
+        <span class="slot-indicator"></span>
+      </button>
+
+      <button class="roster-slot-btn" data-resonator="yinlin" title="Select Yinlin (Electro Zapstring)">
+        <span class="slot-attr-badge electro">ELE</span>
+        <div class="slot-info">
+          <span class="slot-name">Yinlin</span>
+          <span class="slot-sub">Zapstring</span>
+        </div>
+        <span class="slot-indicator"></span>
+      </button>
+
+      <button class="roster-slot-btn" data-resonator="yangyang" title="Select Yangyang (Aero Outrider)">
+        <span class="slot-attr-badge aero">AER</span>
+        <div class="slot-info">
+          <span class="slot-name">Yangyang</span>
+          <span class="slot-sub">Outrider</span>
+        </div>
+        <span class="slot-indicator"></span>
+      </button>
+
+      <button class="roster-slot-btn" data-resonator="calcharo" title="Select Calcharo (Electro Ghost Hound)">
+        <span class="slot-attr-badge electro">ELE</span>
+        <div class="slot-info">
+          <span class="slot-name">Calcharo</span>
+          <span class="slot-sub">Mercenary</span>
+        </div>
+        <span class="slot-indicator"></span>
+      </button>
+
+      <button class="roster-slot-btn" data-resonator="chixia" title="Select Chixia (Fusion Vanguard)">
+        <span class="slot-attr-badge fusion">FUS</span>
+        <div class="slot-info">
+          <span class="slot-name">Chixia</span>
+          <span class="slot-sub">Vanguard</span>
+        </div>
+        <span class="slot-indicator"></span>
+      </button>
+    </div>
+
+    <div class="cyber-data-rows">
+      <div class="cyber-row">
+        <span class="c-lbl">CONCERTO ENGINE</span>
+        <span class="c-val glow-cyan" id="sidebarConcertoVal">100% READY</span>
+      </div>
+      <div class="cyber-row">
+        <span class="c-lbl">SYNC HARMONY</span>
+        <span class="c-val glow-amber" id="sidebarSyncVal">44.1 kHz</span>
+      </div>
+    </div>
+    <div class="cyber-barcode">||| | || |||| | ||| || |||</div>
+  </aside>
+
+  <!-- Interactive Story Layers (Positioned along the scroll path) -->
+  <main class="story-scroll-container" id="scrollContainer">
+
+    <!-- Section 1: Intro / Hero with Grand 3D Sky Blue Header -->
+    <section class="story-stage hero-stage" id="stage1" data-frame-start="0" data-frame-end="44">
+      <div class="grand-3d-header-wrap" id="grandHeader">
+        <h1 class="grand-3d-title">
+          <span class="text-sky-blue">WUTHERING</span>
+          <span class="text-crimson-red">WAVES</span>
+        </h1>
+        <div class="grand-3d-subtitle">RESONANCE CHRONICLES &bull; 300-FRAME CINEMATIC SAGA</div>
+      </div>
+
+      <div class="glass-card right hero-card">
+        <!-- Sci-Fi Brackets [ + ] & Tech Grid Overlay -->
+        <div class="card-terminal-frame" aria-hidden="true">
+          <div class="card-corner-bracket top-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket top-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket bottom-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket bottom-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-tech-grid"></div>
+        </div>
+        <div class="card-ambient-ribbon">
+          <span class="amb-tag">FREQ LOG 01</span>
+          <span class="amb-title">HUANGLONG ARCHIVE // AWAKENING OF THE ARBITER</span>
+        </div>
+        <h3 class="act-header-tag hero-tag">SOLARIS-3: GAME OVERVIEW</h3>
+        <p class="cinematic-para hero-para">
+          Wuthering Waves is an open-world action RPG set in the post-apocalyptic realm of Solaris-3. Play as Rover, an amnesiac traveler awakening into a world ravaged by the Lament. Master high-speed combat with precision parries and dodges, harmonize with unique elemental Resonators, and absorb the Echoes of defeated monsters to wield their abilities in battle.
+        </p>
+
+        <!-- Key Highlights -->
+        <div class="overview-highlights">
+          <div class="highlight-title">KEY COMBAT &amp; EXPLORATION HIGHLIGHTS</div>
+          <ul class="highlight-list">
+            <li>
+              <span class="hl-bullet"></span>
+              <span>High-mobility parkour, aerial grapple hooks, and fluid wall-running</span>
+            </li>
+            <li>
+              <span class="hl-bullet"></span>
+              <span>Fast-paced combat with Concerto switches, perfect parries, and air combos</span>
+            </li>
+            <li>
+              <span class="hl-bullet"></span>
+              <span>Monster absorption, Data Bank progression, and real-time Echo transformation</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="telemetry-chip-group">
+          <span class="telemetry-chip"><span class="chip-dot"></span>DATA BANK: LV.21</span>
+          <span class="telemetry-chip amber"><span class="chip-dot"></span>SOLARIS-3 // HUANGLONG</span>
+          <span class="telemetry-chip rose"><span class="chip-dot"></span>WAVEWORN FREQUENCY</span>
+        </div>
+
+        <div class="scroll-prompt">
+          <span class="scroll-mouse-icon">
+            <span class="wheel-dot"></span>
+          </span>
+          <span class="scroll-instruction">Scroll down to explore core mechanics</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: First Glance / Resonator Harmonization -->
+    <section class="story-stage" id="stage2" data-frame-start="45" data-frame-end="149">
+      <div class="glass-card right">
+        <!-- Sci-Fi Brackets [ + ] & Tech Grid Overlay -->
+        <div class="card-terminal-frame" aria-hidden="true">
+          <div class="card-corner-bracket top-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket top-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket bottom-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket bottom-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-tech-grid"></div>
+        </div>
+        <div class="card-ambient-ribbon">
+          <span class="amb-tag">TACTICAL COMBAT</span>
+          <span class="amb-title">FORTE CIRCUIT ACCELERATION &amp; CONCERTO ENERGY ENGINE</span>
+        </div>
+        <h3 class="act-header-tag">ACT II &bull; FORTE CIRCUIT &amp; CONCERTO</h3>
+        <h2 class="cinematic-heading">Resonator Tuning</h2>
+        <p class="cinematic-para">
+          In the aftermath of the Lament, Resonators command the fundamental sound frequencies of Solaris-3. Build Concerto Energy through rapid strikes and Extreme Evasions. When fully tuned, tag between allies to trigger explosive Outro and Intro skill chains that shatter enemy defenses.
+        </p>
+        <div class="character-stat-grid">
+          <div class="stat-item">
+            <span class="stat-label">AFFINITY ATTRIBUTES</span>
+            <span class="stat-val">Glacio &bull; Aero &bull; Electro</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">CONCERTO ENGINE</span>
+            <span class="stat-val">100% Outro Ready</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">FORTE CIRCUIT</span>
+            <span class="stat-val">Resonance Burst Active</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">SONATA SYNERGY</span>
+            <span class="stat-val">Freezing Frost (5-Pc)</span>
+          </div>
+        </div>
+
+        <!-- Section Stage 2: Inline Game Action Status Bar -->
+        <div class="stage-game-action-bar">
+          <div class="game-action-header-row inline">
+            <div class="game-action-title-group">
+              <span class="game-action-beacon"></span>
+              <span class="game-action-label">GAME ACTION &bull; Start the Game</span>
+            </div>
+            <div class="game-action-status-indicator">
+              <span class="status-pulse-dot"></span>
+              <span class="status-feed-text">FEED READY</span>
+            </div>
+          </div>
+          <button class="start-the-game-btn inline" id="stageStartGameBtn" title="Launch Tactical Combat Feed">
+            <div class="btn-beam-sweep"></div>
+            <div class="btn-inner-content">
+              <div class="btn-icon-cluster">
+                <span class="btn-play-glyph">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                </span>
+              </div>
+              <div class="btn-text-block">
+                <span class="btn-title-main">START THE GAME</span>
+                <span class="btn-subtitle-tag">LAUNCH COMBAT CLIP</span>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Peaceful Serenade / The Lament & Retroact Rain -->
+    <section class="story-stage" id="stage3" data-frame-start="150" data-frame-end="224">
+      <div class="glass-card center">
+        <!-- Sci-Fi Brackets [ + ] & Tech Grid Overlay -->
+        <div class="card-terminal-frame" aria-hidden="true">
+          <div class="card-corner-bracket top-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket top-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket bottom-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket bottom-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-tech-grid"></div>
+        </div>
+        <div class="card-ambient-ribbon">
+          <span class="amb-tag">ENVIRONMENTAL ANOMALY</span>
+          <span class="amb-title">TACET FIELDS &amp; RETROACT RAIN TEMPORAL DISTORTION</span>
+        </div>
+        <h3 class="act-header-tag">ACT III &bull; TACET FIELDS &amp; RETROACT RAIN</h3>
+        <h2 class="cinematic-heading">Sound of the Lament</h2>
+        <p class="cinematic-para">
+          Across the desolate ruins of Solaris-3, inverted drops of Retroact Rain distort the flow of time and memory. Tacet Fields spawn remnants of lost epochs—shadows born from the world's unraveling frequency that threaten entropic collapse.
+        </p>
+        <div class="quote-box">
+          <p>“When the world drowns in the static of the Lament, listen for the unbroken resonance within.”</p>
+        </div>
+        <div class="telemetry-chip-group" style="justify-content: center; margin-top: 1rem;">
+          <span class="telemetry-chip"><span class="chip-dot"></span>PHENOMENON: WAVEWORN DISRUPTION</span>
+          <span class="telemetry-chip rose"><span class="chip-dot"></span>TACET FIELD: ACTIVE HAZARD</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Dual Horizon — Command the Tacet Echoes -->
+    <section class="story-stage" id="stage4" data-frame-start="225" data-frame-end="274">
+      <div class="glass-card left finale-card">
+        <!-- Sci-Fi Brackets [ + ] & Tech Grid Overlay -->
+        <div class="card-terminal-frame" aria-hidden="true">
+          <div class="card-corner-bracket top-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket top-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket bottom-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket bottom-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-tech-grid"></div>
+        </div>
+        <div class="card-ambient-ribbon">
+          <span class="amb-tag">ARBITER RESONANCE</span>
+          <span class="amb-title">SOLARIS-3 ARBITER FREQUENCY // AERIAL ECHO CONTROL</span>
+        </div>
+        <h3 class="act-header-tag">ACT IV &bull; THE ENIGMATIC ARBITER</h3>
+        <h2 class="cinematic-heading">Male Rover</h2>
+        <p class="cinematic-para">
+          Awakening in Solaris-3 as an enigmatic Arbiter, Male Rover defies gravitational boundaries to reshape the battlefield. Armed with the Pangu Terminal and weightless aerial resonance, he commands the Echoes of colossal Tacet Titans mid-air, unleashing catastrophic force with every strike of his blade.
+        </p>
+        <div class="character-stat-grid" style="margin-bottom: 1.25rem;">
+          <div class="stat-item">
+            <span class="stat-label">IDENTITY &bull; RESONANCE</span>
+            <span class="stat-val">Arbiter // Havoc &amp; Spectro</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">TACTICAL ARSENAL</span>
+            <span class="stat-val">Pangu Terminal &bull; Titan Echoes</span>
+          </div>
+        </div>
+        <div class="action-footer-group">
+          <button class="luxury-btn primary" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+            Replay Experience
+          </button>
+          <button class="luxury-btn secondary" id="saveFrameBtn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Save Frame
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: GRAND FINALE — Resonators Convergence Artwork -->
+    <section class="story-stage finale-stage" id="stage5" data-frame-start="275" data-frame-end="299">
+      <div class="glass-card center grand-finale-card">
+        <!-- Sci-Fi Brackets [ + ] & Tech Grid Overlay -->
+        <div class="card-terminal-frame" aria-hidden="true">
+          <div class="card-corner-bracket top-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket top-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket bottom-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket bottom-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-tech-grid"></div>
+        </div>
+        <div class="card-ambient-ribbon">
+          <span class="amb-tag">RESONATOR CONVERGENCE</span>
+          <span class="amb-title">WUTHERING WAVES // SOLARIS-3 ASSEMBLE</span>
+        </div>
+        
+        <h3 class="act-header-tag" style="margin-bottom: 0.5rem;">FINALE &bull; THE HARMONIC HORIZON</h3>
+
+        <div class="finale-art-viewport">
+          <img src="wuthering_waves_finale.jpg" alt="Wuthering Waves Resonators Assemble" class="finale-floating-img" />
+          <div class="finale-art-shimmer"></div>
+        </div>
+
+        <div class="finale-art-caption">
+          <div class="caption-title">SOLARIS-3 RESONATORS &bull; FULL HARMONIC FREQUENCY ASSEMBLED</div>
+          <p class="cinematic-para" style="margin-bottom: 0.5rem; font-size: 0.88rem; color: #bae6fd;">
+            Rover, Jiyan, Yinlin, Yangyang, Chixia, Baizhi, Calcharo, Encore &bull; Reclaim the fractured world beneath the sound of the Lament.
+          </p>
+        </div>
+
+        <div class="action-footer-group" style="justify-content: center; margin-top: 0.85rem;">
+          <button class="luxury-btn primary" id="replayBtn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+            Replay Odyssey
+          </button>
+          <button class="luxury-btn secondary" id="saveFinaleFrameBtn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Save Frame
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: EPILOGUE — The Celestial Threshold (Cloud Vortex & Portal Door) -->
+    <section class="story-stage" id="stage6" data-frame-start="300" data-frame-end="502">
+      <div class="glass-card left">
+        <!-- Sci-Fi Brackets [ + ] & Tech Grid Overlay -->
+        <div class="card-terminal-frame" aria-hidden="true">
+          <div class="card-corner-bracket top-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket top-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket bottom-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-corner-bracket bottom-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+          <div class="card-tech-grid"></div>
+        </div>
+        <div class="card-ambient-ribbon">
+          <span class="amb-tag">TRANS-DIMENSIONAL PORTAL</span>
+          <span class="amb-title">SOLARIS-3 CELESTIAL GATE // VORTEX OF AWAKENING</span>
+        </div>
+        <h3 class="act-header-tag">ACT VI &bull; THE CLOUD VORTEX</h3>
+        <h2 class="cinematic-heading">The Celestial Threshold</h2>
+        <p class="cinematic-para">
+          As the resonance stabilizes across Huanglong, towering storm clouds part to reveal an ethereal doorway standing between dimensions. Drawn by an ancient melody, Rover crosses beyond the mortal horizon into the starry unknown.
+        </p>
+        <div class="telemetry-chip-group">
+          <span class="telemetry-chip"><span class="chip-dot"></span>PORTAL: STABLE 100%</span>
+          <span class="telemetry-chip amber"><span class="chip-dot"></span>FREQUENCY: TRANSCENDENT</span>
+          <span class="telemetry-chip rose"><span class="chip-dot"></span>DESTINATION: CELESTIAL HORIZON</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       FINAL CLIMAX FOOTER CTA SECTION — WALLPAPER-STYLE CINEMATIC CARD
+       ========================================================================== -->
+  <footer class="cinematic-wallpaper-cta-section" id="wallpaperCtaSection">
+    <div class="wallpaper-card" id="wallpaperCard">
+      <!-- Conic Rotating Border Beam running along boundaries -->
+      <div class="wallpaper-border-beam" aria-hidden="true"></div>
+
+      <!-- Sci-Fi Terminal Brackets [ + ] & Holographic Tech Grid Overlay -->
+      <div class="card-terminal-frame" aria-hidden="true">
+        <div class="card-corner-bracket top-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+        <div class="card-corner-bracket top-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+        <div class="card-corner-bracket bottom-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+        <div class="card-corner-bracket bottom-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+        <div class="card-tech-grid"></div>
+      </div>
+
+      <!-- Sci-Fi HUD Corner Data Labels -->
+      <div class="wallpaper-hud-stamps" aria-hidden="true">
+        <div class="hud-stamp top-left">
+          <span class="stamp-dot cyan"></span>
+          <span>SYS.DISPATCH // HUANGLONG CITADEL</span>
+        </div>
+        <div class="hud-stamp top-right">
+          <span>CROSS-SAVE // 100% UNIFIED FREQUENCY</span>
+          <span class="stamp-dot magenta"></span>
+        </div>
+      </div>
+
+      <!-- Wallpaper Background Visual Layer with Ambient Canvas & Overlays -->
+      <div class="wallpaper-visual-backdrop">
+        <img src="wuthering_cta_wallpaper.jpg" alt="Wuthering Waves Solaris-3 Horizon Wallpaper" class="wallpaper-bg-img" id="wallpaperBgImg" />
+        <div class="wallpaper-ambient-aurora"></div>
+        <div class="wallpaper-vignette-overlay"></div>
+        <div class="wallpaper-scanline-mesh"></div>
+        <!-- Ambient Floating Particles / Stardust Canvas -->
+        <canvas id="wallpaperParticlesCanvas" class="wallpaper-particles-canvas" aria-hidden="true"></canvas>
+      </div>
+
+      <!-- Card Foreground Content -->
+      <div class="wallpaper-card-content">
+        <!-- Top Ambient Category Ribbon -->
+        <div class="card-ambient-ribbon cta-ribbon">
+          <span class="amb-tag">CLIMAX ODYSSEY</span>
+          <span class="amb-title">WUTHERING WAVES // SOLARIS-3 ARBITER AWAKENING</span>
+          <div class="cta-pulse-status">
+            <span class="status-pulse-dot"></span>
+            <span class="pulse-label">SERVERS LIVE // GLOBAL</span>
+          </div>
+        </div>
+
+        <!-- Header Text: Bold Stylized Headline & Subheading -->
+        <div class="wallpaper-header-group">
+          <div class="wallpaper-kicker-tag">
+            <span class="kicker-line"></span>
+            <span class="kicker-text">PLAY ANYWHERE</span>
+            <span class="kicker-line"></span>
+          </div>
+          <h2 class="wallpaper-main-headline">
+            <span class="headline-gradient-cyan">START YOUR</span>
+            <span class="headline-gradient-magenta">JOURNEY</span>
+          </h2>
+          <p class="wallpaper-subheading">Available on Mobile, PC, App Store, and Google Play</p>
+          <p class="wallpaper-description">
+            Awaken as the Arbiter of Solaris-3. Master dynamic combat, collect powerful Echoes, and embark on a boundless open-world journey with seamless cross-platform progression.
+          </p>
+        </div>
+
+        <!-- Platform Availability Badges / Icons (Side-by-Side Glowing Grid) -->
+        <div class="wallpaper-platform-badges-grid">
+          <!-- 1. PC (Windows / Gaming Rig Icon) -->
+          <button class="platform-badge-btn pc-badge" id="pcPlatformBtn" data-platform="PC Windows" title="Download for PC (Direct Client & Epic Games)">
+            <div class="badge-hover-sweep"></div>
+            <div class="badge-corner-ticks">
+              <span class="bct tl">┌</span><span class="bct tr">┐</span>
+              <span class="bct bl">└</span><span class="bct br">┘</span>
+            </div>
+            <div class="platform-badge-inner">
+              <div class="platform-icon-box pc-icon-box">
+                <!-- Windows / High-Tech Gaming Rig SVG Icon -->
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="14" height="11" rx="2"></rect>
+                  <polygon points="19 7 19 19 16 19 16 7"></polygon>
+                  <line x1="6" y1="18" x2="12" y2="18"></line>
+                  <line x1="9" y1="14" x2="9" y2="18"></line>
+                  <circle cx="9" cy="8.5" r="1.5" fill="currentColor"></circle>
+                  <!-- Windows Grid Accent in Monitor -->
+                  <line x1="4.5" y1="6" x2="7.5" y2="6" stroke-width="1.2"></line>
+                  <line x1="4.5" y1="8" x2="7.5" y2="8" stroke-width="1.2"></line>
+                </svg>
+                <div class="icon-ring-pulse"></div>
+              </div>
+              <div class="platform-text-group">
+                <span class="platform-type-tag">DESKTOP CLIENT</span>
+                <span class="platform-title">PC WINDOWS</span>
+                <span class="platform-sub">Direct Client &bull; Epic Games</span>
+                <div class="platform-spec-chip">
+                  <span class="spec-dot pc"></span>
+                  <span>4K 120FPS &bull; RAY TRACING</span>
+                </div>
+              </div>
+              <div class="platform-action-arrow">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+              </div>
+            </div>
+          </button>
+
+          <!-- 2. Mobile / Android (Google Play Store Badge/Icon) -->
+          <button class="platform-badge-btn googleplay-badge" id="androidPlatformBtn" data-platform="Google Play" title="Get it on Google Play Store">
+            <div class="badge-hover-sweep"></div>
+            <div class="badge-corner-ticks">
+              <span class="bct tl">┌</span><span class="bct tr">┐</span>
+              <span class="bct bl">└</span><span class="bct br">┘</span>
+            </div>
+            <div class="platform-badge-inner">
+              <div class="platform-icon-box googleplay-icon-box">
+                <!-- Google Play Store Triangular Prism Faceted SVG Icon -->
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
+                  <path d="M3.609 1.814L13.793 12 3.61 22.186a2.016 2.016 0 0 1-.61-.955V2.77c0-.363.09-.705.25-1.002l.359.046zm11.242 11.243l2.457-2.457-11.89-6.865 9.433 9.322zm0 1.886l-9.433 9.322 11.89-6.865-2.457-2.457zm1.472-1.471l3.585 2.07c1.173.678 1.173 1.782 0 2.46l-3.585 2.07-2.274-2.274 2.274-2.326z"/>
+                </svg>
+                <div class="icon-ring-pulse"></div>
+              </div>
+              <div class="platform-text-group">
+                <span class="platform-type-tag">MOBILE / ANDROID</span>
+                <span class="platform-title">GOOGLE PLAY</span>
+                <span class="platform-sub">Google Play Store &bull; Android 9+</span>
+                <div class="platform-spec-chip">
+                  <span class="spec-dot android"></span>
+                  <span>120Hz ULTRA &bull; TOUCH / PAD</span>
+                </div>
+              </div>
+              <div class="platform-action-arrow">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+              </div>
+            </div>
+          </button>
+
+          <!-- 3. iOS (Apple App Store Badge/Icon) -->
+          <button class="platform-badge-btn appstore-badge" id="iosPlatformBtn" data-platform="App Store" title="Download on the Apple App Store">
+            <div class="badge-hover-sweep"></div>
+            <div class="badge-corner-ticks">
+              <span class="bct tl">┌</span><span class="bct tr">┐</span>
+              <span class="bct bl">└</span><span class="bct br">┘</span>
+            </div>
+            <div class="platform-badge-inner">
+              <div class="platform-icon-box appstore-icon-box">
+                <!-- Apple / App Store Stylized SVG Icon -->
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.4c.64-.78 1.08-1.86.96-2.95-1 .04-2.13.67-2.79 1.45-.58.67-1.1 1.76-.96 2.83 1.11.09 2.15-.55 2.79-1.33z"/>
+                </svg>
+                <div class="icon-ring-pulse"></div>
+              </div>
+              <div class="platform-text-group">
+                <span class="platform-type-tag">iOS &amp; iPadOS</span>
+                <span class="platform-title">APP STORE</span>
+                <span class="platform-sub">iPhone &bull; iPad &bull; Mac (M-Series)</span>
+                <div class="platform-spec-chip">
+                  <span class="spec-dot apple"></span>
+                  <span>METAL 3 FX &bull; RETINA HDR</span>
+                </div>
+              </div>
+              <div class="platform-action-arrow">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Climax Action Footer (Quick Launch + Telemetry Badges) -->
+        <div class="wallpaper-footer-action-bar">
+          <div class="cta-feature-chips">
+            <span class="feature-chip"><span class="f-dot cyan"></span>CROSS-PROGRESSION SYNC</span>
+            <span class="feature-chip"><span class="f-dot magenta"></span>UNREAL ENGINE 4</span>
+            <span class="feature-chip"><span class="f-dot gold"></span>CONTROLLER OPTIMIZED</span>
+            <span class="feature-chip"><span class="f-dot emerald"></span>GLOBAL REGIONS ACTIVE</span>
+          </div>
+
+          <div class="cta-direct-buttons">
+            <button class="luxury-btn primary cta-launch-main-btn" id="ctaInstantHarmonizeBtn" title="Harmonize Frequency &amp; Launch Journey">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+              <span>Harmonize Frequency &bull; Launch Client</span>
+            </button>
+            <button class="luxury-btn secondary" id="ctaScrollTopBtn" title="Return to Top of Odyssey">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+              <span>Back to Top</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Interaction Toast Alert inside Card -->
+        <div class="cta-toast-banner hidden" id="ctaToastBanner">
+          <span class="toast-beacon"></span>
+          <span class="toast-text" id="ctaToastText">INITIALIZING SYSTEM LINK...</span>
+          <span class="toast-chip">KURO ID AUTHENTICATED</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bottom Floating Interactive Control Deck -->
+  <aside class="cinematic-dock" id="controlDock">
+    <!-- Scrubber Header Ticker -->
+    <div class="dock-floating-header">
+      <span class="df-dot"></span>
+      <span class="df-title">CHRONOMETER MATRIX:</span>
+      <span class="df-text">SOLARIS-3 ARBITER TERMINAL &bull; 503-FRAME FREQUENCY SCRUBBER &bull; EXTENDED CELESTIAL ODYSSEY</span>
+    </div>
+
+    <!-- Timeline Scrubber with Markers Across All 503 Frames -->
+    <div class="timeline-container">
+      <div class="timeline-track" id="timelineTrack">
+        <!-- Progress Fill -->
+        <div class="timeline-progress" id="timelineProgress"></div>
+        <div class="timeline-thumb" id="timelineThumb"></div>
+        
+        <!-- Milestone Markers across 503 frames -->
+        <div class="marker" style="left: 0%" title="Overview (0)" data-frame="0"></div>
+        <div class="marker" style="left: 9.0%" title="Act II: The Encounter (45)" data-frame="45"></div>
+        <div class="marker" style="left: 29.9%" title="Act III: Serenade (150)" data-frame="150"></div>
+        <div class="marker" style="left: 44.8%" title="Act IV: Male Rover (225)" data-frame="225"></div>
+        <div class="marker" style="left: 56.8%" title="Finale: Cast Photo (285)" data-frame="285"></div>
+        <div class="marker" style="left: 59.8%" title="Epilogue: Gateway (300)" data-frame="300"></div>
+        <div class="marker" style="left: 100%" title="Cosmic Harmony (502)" data-frame="502"></div>
+
+        <!-- Scrubber Tooltip Preview -->
+        <div class="timeline-tooltip" id="timelineTooltip">
+          <span class="tooltip-frame" id="tooltipFrameText">Frame 001</span>
+          <span class="tooltip-act" id="tooltipActText">Act I</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Tool Deck Bottom Row -->
+    <div class="dock-inner">
+      <div class="dock-left">
+        <!-- Frame Stepping Controls -->
+        <button class="dock-mini-btn" id="stepBackBtn" title="Step Back 1 Frame (Left Arrow)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+        </button>
+
+        <button class="dock-play-circle" id="dockPlayBtn" title="Play / Pause">
+          <svg class="dock-play-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+          <svg class="dock-pause-icon hidden" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+        </button>
+
+        <button class="dock-mini-btn" id="stepForwardBtn" title="Step Forward 1 Frame (Right Arrow)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>
+        </button>
+
+        <!-- Dynamic Frame Counter -->
+        <div class="frame-digits">
+          <span class="current-frame-num" id="currentFrameDisplay">001</span>
+          <span class="frame-slash">/</span>
+          <span class="total-frame-num">503</span>
+          <span class="frame-sub-tag" id="frameSubTag">Frame [001/503] • Resonance</span>
+        </div>
+
+        <div class="playback-speed-selector">
+          <button class="speed-pill active" data-speed="1">1x</button>
+          <button class="speed-pill" data-speed="1.5">1.5x</button>
+          <button class="speed-pill" data-speed="2">2x</button>
+        </div>
+      </div>
+
+      <!-- Sleek Sci-Fi Anime Audio Metadata Badge (Dock Control Bar) -->
+      <div class="dock-center">
+        <div class="audio-metadata-badge" id="dockAudioBadge" title="Click to Play / Pause RADWIMPS feat. Toaka — Suzume (M)">
+          <div class="badge-border-beam"></div>
+          <div class="badge-scanline"></div>
+
+          <!-- 4-Bar Mini Audio Equalizer Icon -->
+          <div class="badge-eq-wrap" id="dockEqWrap">
+            <div class="eq-bars-4" id="dockEqBars">
+              <span class="eq-bar bar-1"></span>
+              <span class="eq-bar bar-2"></span>
+              <span class="eq-bar bar-3"></span>
+              <span class="eq-bar bar-4"></span>
+            </div>
+          </div>
+
+          <!-- Track Info -->
+          <div class="badge-track-info">
+            <div class="badge-title-row">
+              <span class="badge-tag">OST</span>
+              <span class="badge-track-title">Suzume</span>
+              <span class="badge-status-dot" id="dockAudioStatusDot"></span>
+            </div>
+            <div class="badge-artist-row">
+              <span class="badge-track-artist">RADWIMPS feat. Toaka</span>
+            </div>
+          </div>
+
+          <!-- Duration Progress Box -->
+          <div class="badge-duration-box">
+            <div class="badge-time-display">
+              <span class="current-time" id="dockAudioCurrentTime">0:00</span>
+              <span class="time-sep">/</span>
+              <span class="total-duration" id="dockAudioTotalTime">3:58</span>
+            </div>
+            <div class="badge-progress-track">
+              <div class="badge-progress-fill" id="dockAudioProgressFill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dock-right">
+        <!-- View Aspect Toggle -->
+        <div class="view-mode-group">
+          <button class="mode-btn active" id="fitCoverBtn" title="Cinematic Fill / Cover">Cover</button>
+          <button class="mode-btn" id="fitContainBtn" title="Fit Entire Frame">Contain</button>
+        </div>
+
+        <!-- Color Grading / Filter Presets -->
+        <div class="filter-dropdown-wrap">
+          <select id="filterSelect" class="luxury-select" title="Color Grade LUT">
+            <option value="none">Original Master</option>
+            <option value="vibrant">Vibrant Anime Bloom</option>
+            <option value="golden">Golden Hour Glow</option>
+            <option value="dreamy">Ethereal Pastel</option>
+            <option value="cyber">Cyberpunk Echo</option>
+            <option value="noir">Monochrome Noir</option>
+          </select>
+        </div>
+
+        <!-- Cinema FX Master Atmospheric Toggle Button -->
+        <button class="mode-btn active cinema-fx-btn" id="fxToggleBtn" title="Toggle Cinema Effects & Flares (X)">
+          <span class="fx-beacon-dot"></span>
+          <span id="fxBtnText">Cinema FX: ON</span>
+        </button>
+
+        <!-- Hide UI Button -->
+        <button class="dock-mini-btn" id="toggleCaptionsBtn" title="Toggle Story Captions (C)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Technical Telemetry & Inspector HUD (Toggleable via H key) -->
+  <aside class="hud-telemetry hidden" id="hudTelemetry">
+    <div class="hud-header">
+      <span class="hud-title">REALTIME ENGINE TELEMETRY</span>
+      <button class="hud-close" id="hudCloseBtn">&times;</button>
+    </div>
+    <div class="hud-grid">
+      <div class="hud-item"><span class="k">FPS:</span> <span class="v" id="hudFps">60.0</span></div>
+      <div class="hud-item"><span class="k">Buffer:</span> <span class="v" id="hudBuffer">300/300</span></div>
+      <div class="hud-item"><span class="k">Scroll Progress:</span> <span class="v" id="hudProgress">0.0%</span></div>
+      <div class="hud-item"><span class="k">Cinema FX:</span> <span class="v" id="hudFxStatus">Anamorphic 4K [Active]</span></div>
+      <div class="hud-item"><span class="k">Velocity:</span> <span class="v" id="hudVelocity">0.00</span></div>
+      <div class="hud-item"><span class="k">Canvas Target:</span> <span class="v" id="hudResolution">1920x1080</span></div>
+      <div class="hud-item"><span class="k">Web Audio:</span> <span class="v" id="hudAudioState">Suspended</span></div>
+    </div>
+    <div class="hud-keys">
+      <span><kbd>Space</kbd> Play/Pause</span>
+      <span><kbd>&larr;</kbd> <kbd>&rarr;</kbd> Step Frame</span>
+      <span><kbd>X</kbd> Cinema FX</span>
+      <span><kbd>F</kbd> Fullscreen</span>
+      <span><kbd>M</kbd> Ambient Sound</span>
+      <span><kbd>C</kbd> Captions</span>
+      <span><kbd>H</kbd> HUD</span>
+    </div>
+  </aside>
+
+  <!-- Soundwave Slide Transition Wipe Overlay -->
+  <div class="soundwave-transition-overlay" id="soundwaveTransition" aria-hidden="true">
+    <div class="soundwave-laser-beam"></div>
+    <div class="soundwave-bars-cluster">
+      <span class="sw-bar"></span><span class="sw-bar"></span><span class="sw-bar"></span>
+      <span class="sw-bar"></span><span class="sw-bar"></span><span class="sw-bar"></span>
+      <span class="sw-bar"></span><span class="sw-bar"></span><span class="sw-bar"></span>
+      <span class="sw-bar"></span><span class="sw-bar"></span><span class="sw-bar"></span>
+      <span class="sw-bar"></span><span class="sw-bar"></span><span class="sw-bar"></span>
+      <span class="sw-bar"></span><span class="sw-bar"></span><span class="sw-bar"></span>
+      <span class="sw-bar"></span><span class="sw-bar"></span><span class="sw-bar"></span>
+      <span class="sw-bar"></span><span class="sw-bar"></span><span class="sw-bar"></span>
+    </div>
+    <div class="soundwave-hud-stamp">
+      <span class="sw-stamp-beacon"></span>
+      <span class="sw-stamp-text" id="soundwaveStampText">FREQUENCY HARMONIZATION // 44.1 kHz</span>
+    </div>
+  </div>
+
+  <!-- Resonator Profile & Echo Showcase Tactical HUD Modal -->
+  <div class="resonator-showcase-modal hidden" id="resonatorShowcaseModal" aria-modal="true" role="dialog">
+    <div class="showcase-backdrop" id="showcaseBackdrop"></div>
+    <div class="showcase-card glass-card visible" id="showcaseCard">
+      <!-- Sci-Fi Brackets [ + ] & Tech Grid Overlay -->
+      <div class="card-terminal-frame" aria-hidden="true">
+        <div class="card-corner-bracket top-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+        <div class="card-corner-bracket top-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+        <div class="card-corner-bracket bottom-left"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+        <div class="card-corner-bracket bottom-right"><span class="bracket-sym">[</span><span class="bracket-plus">+</span><span class="bracket-sym">]</span></div>
+        <div class="card-tech-grid"></div>
+      </div>
+
+      <div class="showcase-header">
+        <div class="card-ambient-ribbon">
+          <span class="amb-tag" id="showcaseRarityTag">5★ ARBITER</span>
+          <span class="amb-title" id="showcaseSectorTag">HUANGLONG // PANGU TERMINAL SYNCHRONIZED</span>
+        </div>
+        <button class="showcase-close-btn" id="showcaseCloseBtn" title="Close Profile (Esc)">&times;</button>
+      </div>
+
+      <div class="showcase-hero-row">
+        <div class="showcase-identity">
+          <div class="showcase-badge-row">
+            <span class="showcase-attr-pill" id="showcaseAttrPill">
+              <span class="attr-icon-dot"></span>
+              <span id="showcaseAttrText">Attribute: Havoc / Spectro</span>
+            </span>
+            <span class="showcase-weapon-pill" id="showcaseWeaponPill">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="14.5 17.5 3 6 6 3 17.5 14.5 14.5 17.5"></polygon><line x1="13" y1="19" x2="19" y2="13"></line><line x1="16" y1="16" x2="20" y2="20"></line><line x1="19" y1="21" x2="21" y2="19"></line></svg>
+              <span id="showcaseWeaponText">Weapon: Sword</span>
+            </span>
+            <span class="showcase-level-pill">LV. 90 / S6 MAX</span>
+          </div>
+          <h2 class="showcase-char-name" id="showcaseCharName">Rover</h2>
+          <div class="showcase-char-title" id="showcaseCharTitle">The Arbiter // Solaris-3 Origin</div>
+          <p class="showcase-char-desc" id="showcaseCharDesc">
+            An enigmatic traveler awakening into the broken frequency of Solaris-3. Wields the Pangu Terminal and weightless aerial resonance to command colossal Echoes mid-air.
+          </p>
+        </div>
+      </div>
+
+      <!-- Game-Style Animated Stats & Progress Bars HUD -->
+      <div class="showcase-stats-hud">
+        <!-- 1. Resonance Liberation Progress Bar -->
+        <div class="hud-stat-bar-group">
+          <div class="hud-stat-bar-header">
+            <span class="hud-bar-label">
+              <span class="bar-icon-beacon liberation"></span>
+              RESONANCE LIBERATION &bull; <strong id="liberationSkillName">Dead Heat // Spatial Collapse</strong>
+            </span>
+            <span class="hud-bar-value" id="liberationValue">94%</span>
+          </div>
+          <div class="hud-progress-track">
+            <div class="hud-progress-bar liberation-bar" id="liberationBar" style="width: 94%;">
+              <div class="bar-sheen-scan"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Forte Circuit Gauge Progress Bar -->
+        <div class="hud-stat-bar-group">
+          <div class="hud-stat-bar-header">
+            <span class="hud-bar-label">
+              <span class="bar-icon-beacon forte"></span>
+              FORTE CIRCUIT GAUGE &bull; <strong id="forteSkillName">Darkness Surge</strong>
+            </span>
+            <span class="hud-bar-value" id="forteValue">88%</span>
+          </div>
+          <div class="hud-progress-track">
+            <div class="hud-progress-bar forte-bar" id="forteBar" style="width: 88%;">
+              <div class="bar-sheen-scan"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Concerto Energy Engine Progress Bar -->
+        <div class="hud-stat-bar-group">
+          <div class="hud-stat-bar-header">
+            <span class="hud-bar-label">
+              <span class="bar-icon-beacon concerto"></span>
+              CONCERTO ENERGY ENGINE &bull; <strong id="concertoSkillName">Outro Ready</strong>
+            </span>
+            <span class="hud-bar-value" id="concertoValue">100% [READY]</span>
+          </div>
+          <div class="hud-progress-track">
+            <div class="hud-progress-bar concerto-bar" id="concertoBar" style="width: 100%;">
+              <div class="bar-sheen-scan"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME ACTION • Start the Game Status Bar & Embedded Video Section -->
+      <div class="game-action-status-section" id="gameActionSection">
+        <div class="game-action-header-row">
+          <div class="game-action-title-group">
+            <span class="game-action-beacon"></span>
+            <span class="game-action-label">GAME ACTION &bull; Start the Game</span>
+          </div>
+          <div class="game-action-status-indicator">
+            <span class="status-pulse-dot" id="statusPulseDot"></span>
+            <span class="status-feed-text" id="gameActionFeedStatus">STANDBY // CLICK TO ENGAGE</span>
+          </div>
+        </div>
+
+        <!-- Prominent Futuristic START THE GAME Button -->
+        <div class="game-action-btn-container">
+          <button class="start-the-game-btn" id="startGameBtn" title="Launch Tactical Combat Feed & Autoplay Clip">
+            <div class="btn-beam-sweep"></div>
+            <div class="btn-holo-sheen"></div>
+            <div class="btn-corner-brackets">
+              <span class="cb tl">┌</span>
+              <span class="cb tr">┐</span>
+              <span class="cb bl">└</span>
+              <span class="cb br">┘</span>
+            </div>
+            <div class="btn-inner-content">
+              <div class="btn-icon-cluster">
+                <span class="btn-play-glyph">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                </span>
+                <span class="btn-radar-ring"></span>
+              </div>
+              <div class="btn-text-block">
+                <span class="btn-title-main">START THE GAME</span>
+                <span class="btn-subtitle-tag">LAUNCH COMBAT SEQUENCE // 4K 60FPS</span>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Video Player Container / Slot with Attached Video Clip -->
+        <div class="gameplay-video-slot" id="gameplayVideoSlot">
+          <div class="video-hud-overlay">
+            <div class="v-hud-top">
+              <div class="v-hud-rec">
+                <span class="v-rec-dot" id="videoRecDot"></span>
+                <span class="v-rec-text" id="videoRecText">STANDBY</span>
+              </div>
+              <span class="v-hud-title">SOLARIS-3 // COMBAT ARCHIVE [DIRECT FEED]</span>
+              <span class="v-hud-chip">4K 60FPS</span>
+            </div>
+            <div class="v-hud-corners">
+              <span class="vhc tl">[ + ]</span>
+              <span class="vhc tr">[ + ]</span>
+              <span class="vhc bl">[ + ]</span>
+              <span class="vhc br">[ + ]</span>
+            </div>
+          </div>
+
+          <video id="gameplayVideoPlayer" class="gameplay-video-player" src="game_action_clip.mp4" playsinline controls loop preload="auto">
+            Your browser does not support HTML5 video streaming.
+          </video>
+
+          <div class="video-interactive-poster" id="videoInteractivePoster">
+            <div class="poster-crest">
+              <span class="poster-play-triangle">
+                <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+              </span>
+              <div class="poster-ripple-ring"></div>
+              <div class="poster-ripple-ring outer"></div>
+            </div>
+            <span class="poster-instruction">CLICK <strong>"START THE GAME"</strong> TO ENGAGE VIDEO FEED</span>
+            <span class="poster-subtext">Direct Screen Recording Feed Synchronized • High-Definition Stream</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Echo Showcase Module -->
+      <div class="showcase-echo-box" id="showcaseEchoBox">
+        <div class="echo-header">
+          <div class="echo-badge-title">
+            <span class="echo-icon-star">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+            <span class="echo-title-text">EQUIPPED ECHO SHOWCASE</span>
+          </div>
+          <span class="echo-class-tag" id="echoGradeTag">CALAMITY CLASS [4-COST]</span>
+        </div>
+        <div class="echo-body">
+          <div class="echo-name-row">
+            <h4 class="echo-name" id="echoName">Dreamless</h4>
+            <span class="echo-sonata-pill" id="echoSonata">Havoc Eclipse (5-Pc Set Active)</span>
+          </div>
+          <p class="echo-skill-desc" id="echoSkillDesc">
+            Summons the sovereign phantom of the Lament to slice through temporal space, dealing catastrophic Havoc damage.
+          </p>
+          <div class="echo-stat-chips">
+            <span class="stat-chip">CRIT RATE +31.8%</span>
+            <span class="stat-chip highlight" id="echoMainElemChip">HAVOC DMG +40.0%</span>
+            <span class="stat-chip">ATK +18.0%</span>
+            <span class="stat-chip">ENERGY RECHARGE +11.6%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="showcase-actions">
+        <button class="luxury-btn primary" id="showcaseHarmonizeBtn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Harmonize Frequency
+        </button>
+        <button class="luxury-btn secondary" id="showcaseJumpFrameBtn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Jump to Narrative Climax
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
