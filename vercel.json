@@ -1,1 +1,1 @@
-{  "rewrites": [    { "source": "/(.*)", "destination": "/index.html" }  ]}
+{  "version": 2,  "routes": [    {      "src": "/(.*\\.(css|js|png|jpg|jpeg|svg|mp3|wav|ogg|ico|webp|gif|json|ttf|woff|woff2))",      "dest": "/$1"    },    {      "src": "/(.*)",      "dest": "/index.html"    }  ]}
